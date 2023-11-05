@@ -71,6 +71,10 @@ public class JCFROST extends Applet {
                     getGroupKey(apdu);
                     break;
 
+                case Consts.INS_SIGN_ONESHOT:
+                    signOneshot(apdu);
+                    break;
+
                 default:
                     ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
             }
@@ -175,5 +179,23 @@ public class JCFROST extends Applet {
     private void getGroupKey(APDU apdu) {
         short len = groupPublic.encode(apdu.getBuffer(), (short) 0, true);
         apdu.setOutgoingAndSend((short) 0, len);
+    }
+
+    // ----------------------TESTING IMPLE-----------------------------------------------------------------------------
+    private void signOneshot(APDU apdu) {
+        byte[] apduBuffer = apdu.getBuffer();
+        // set params
+        minParties = 1;
+        maxParties = 2;
+        identifier = 1;
+        // directly provide secret and group public key
+        secret.fromByteArray(apduBuffer, ISO7816.OFFSET_CDATA , (short) 32);
+        groupPublic.decode(apduBuffer, (short) (ISO7816.OFFSET_CDATA + 32), POINT_SIZE);
+        frost.commitOneshot(apduBuffer,
+                (short) (ISO7816.OFFSET_CDATA + 32 + POINT_SIZE), // hiding nonce
+                (short) (ISO7816.OFFSET_CDATA + 32 + POINT_SIZE + 32)); // binding nonce
+        frost.sign(apduBuffer, (short) (ISO7816.OFFSET_CDATA + 32 + POINT_SIZE + 32 + 32),
+                apduBuffer[ISO7816.OFFSET_P1], apduBuffer, (short) 0); // message
+        apdu.setOutgoingAndSend((short) 0, (short) 32);
     }
 }

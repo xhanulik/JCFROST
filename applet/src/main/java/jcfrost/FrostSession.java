@@ -260,4 +260,21 @@ public class FrostSession {
         tmp.modAdd(challenge, JCFROST.curve.rBN);
         tmp.copyToByteArray(output, outputOffset);
     }
+
+    // ----------------------TESTING IMPLE-----------------------------------------------------------------------------
+    public void commitOneshot(byte[] inputData, short hidingOffset, short bindingOffset) {
+        // set hiding and binding potin directly
+        hidingPoint.setW(SecP256k1.G, (short) 0, (short) SecP256k1.G.length);
+        bindingPoint.setW(SecP256k1.G, (short) 0, (short) SecP256k1.G.length);
+        hidingNonce.fromByteArray(inputData, hidingOffset, (short) 32);
+        bindingNonce.fromByteArray(inputData, bindingOffset, (short) 32);
+        hidingPoint.multiplication(hidingNonce);
+        bindingPoint.multiplication(bindingNonce);
+        commitments[0].identifier = 1;
+        // omit commitment part as we have data only from this card needed for sign
+        hidingPoint.encode(commitments[0].hiding, (short) 0, true);
+        bindingPoint.encode(commitments[0].binding, (short) 0, true);
+        storedCommitments = 1;
+        index = 0;
+    }
 }

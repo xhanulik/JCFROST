@@ -146,4 +146,71 @@ public class AppletTest extends BaseTest {
         }
         reset(cm);
     }
+
+    @Test
+    public void customSign() throws Exception {
+        CardManager cm = connect();
+
+        byte[] secret = Util.hexStringToByteArray("CCC520B89CAE7C8E57CD53521325D6A0855188BE511C6E6B4CF9653817D5347D");
+        byte[] groupKey = Util.hexStringToByteArray("042b32ab827bdffa6f63ccf9f27b1d03017f4f5d909c13294e8a4c389d3f57373f767033b8932942aded1a0ec48d9a1e1d26fb1eec023f74aa48f6a891e73076ca");
+        byte[] hidingNonce = Util.hexStringToByteArray("3003D1672CC30C80A08FADA0F6821F81CBA11C570872376824C34F1B084F5899");
+        byte[] bindingNonce = Util.hexStringToByteArray("E17551482E67A7DC5F5F517954AA1986D521A938F5B6E3063AC17945B5EF1070");
+        byte[] message = Util.hexStringToByteArray("FE0D5F3E9EB6747A5850A4D41170C0A3");
+
+        setup(cm);
+        final CommandAPDU cmd = new CommandAPDU(
+                Consts.CLA_JCFROST,
+                Consts.INS_SIGN_ONESHOT,
+                message.length,
+                0x00,
+                Util.concat(Util.concat(secret, recodePoint(groupKey), hidingNonce), bindingNonce, message)
+        );
+        cm.transmit(cmd);
+        reset(cm);
+    }
+
+    @Test
+    public void sign() throws Exception {
+        CardManager cm = connect();
+
+        byte[] secret = Util.hexStringToByteArray("55389167c900028a37a264541ae18c5733902c0b51d7665ed41afe6788fe9fba");
+        byte[] groupKey = Util.hexStringToByteArray("022b32ab827bdffa6f63ccf9f27b1d03017f4f5d909c13294e8a4c389d3f57373f");
+        byte[] hidingRandomness = Util.hexStringToByteArray("035963fbaa2b953f2aec5fee0d9c926f9d1b65d5e150445fbe21ba437c602544d7");
+        byte[] bindingRandomness = Util.hexStringToByteArray("111963fbaa2b953f2aec5fee0d9c926f9d1b65d5e150445fbe21ba437c60254111");
+        byte[] hidingCommitment = Util.hexStringToByteArray("037a4b983117b6f6a47d9960b80c261e6122a5bc33661861f59a8a5793778ad0c4");
+        byte[] bindingCommitment = Util.hexStringToByteArray("03b4c3e234502ae5c97b7d14fee0ac980023de2b2acf3d3db1d03338b9535def0e");
+        byte[] message = Util.hexStringToByteArray("325CE1E250E50BEBA57D6A487973D280");
+
+        // 1. setup
+        final CommandAPDU cmd = new CommandAPDU(
+                Consts.CLA_JCFROST,
+                Consts.INS_SETUP,
+                0x02, // threshold
+                0x02, // parties
+                Util.concat(new byte[]{(byte) 1}, secret, recodePoint(groupKey))
+        );
+        ResponseAPDU response = cm.transmit(cmd);
+        Assertions.assertEquals(response.getSW(), 0x9000);
+        // 2. generate nonces
+        byte[] cardData;
+        response = cm.transmit(new CommandAPDU(0, 2, 64, 0, Util.concat(hidingRandomness, bindingRandomness)));
+        Assertions.assertEquals(response.getSW(), 0x9000);
+        cardData = response.getData();
+        // 3. set commitments
+        byte[] hiding = Arrays.copyOfRange(cardData, 0, 33); // card own nonce
+        byte[] binding = Arrays.copyOfRange(cardData, 33, 66); // card own nonce
+        // first card
+        response = cm.transmit(new CommandAPDU(0, 3, 1 /* CARD index */, 0,
+                Util.concat(recodePoint(hiding), recodePoint(binding))));
+        Assertions.assertEquals(response.getSW(), 0x9000);
+        // second card
+        response = cm.transmit(new CommandAPDU(0, 3, 2 /* CARD index */, 0,
+                Util.concat(recodePoint(hidingCommitment), recodePoint(bindingCommitment))));
+        Assertions.assertEquals(response.getSW(), 0x9000);
+        // 4. sign
+        response = cm.transmit(new CommandAPDU(0, 4, 0x10, 0, message));
+        Assertions.assertEquals(response.getSW(), 0x9000);
+        System.out.println(Util.bytesToHex(response.getData()));
+        reset(cm);
+    }
 }
