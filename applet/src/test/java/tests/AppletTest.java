@@ -148,28 +148,6 @@ public class AppletTest extends BaseTest {
     }
 
     @Test
-    public void customSign() throws Exception {
-        CardManager cm = connect();
-
-        byte[] secret = Util.hexStringToByteArray("CCC520B89CAE7C8E57CD53521325D6A0855188BE511C6E6B4CF9653817D5347D");
-        byte[] groupKey = Util.hexStringToByteArray("042b32ab827bdffa6f63ccf9f27b1d03017f4f5d909c13294e8a4c389d3f57373f767033b8932942aded1a0ec48d9a1e1d26fb1eec023f74aa48f6a891e73076ca");
-        byte[] hidingNonce = Util.hexStringToByteArray("3003D1672CC30C80A08FADA0F6821F81CBA11C570872376824C34F1B084F5899");
-        byte[] bindingNonce = Util.hexStringToByteArray("E17551482E67A7DC5F5F517954AA1986D521A938F5B6E3063AC17945B5EF1070");
-        byte[] message = Util.hexStringToByteArray("FE0D5F3E9EB6747A5850A4D41170C0A3");
-
-        setup(cm);
-        final CommandAPDU cmd = new CommandAPDU(
-                Consts.CLA_JCFROST,
-                Consts.INS_SIGN_ONESHOT,
-                message.length,
-                0x00,
-                Util.concat(Util.concat(secret, recodePoint(groupKey), hidingNonce), bindingNonce, message)
-        );
-        cm.transmit(cmd);
-        reset(cm);
-    }
-
-    @Test
     public void sign() throws Exception {
         DataFile dataFile = new DataFile("src/test/resources/data/fixed_data_1.json");
         CardManager cm = connect();
