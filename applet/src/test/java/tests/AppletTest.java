@@ -171,14 +171,8 @@ public class AppletTest extends BaseTest {
 
     @Test
     public void sign() throws Exception {
+        DataFile dataFile = new DataFile("src/test/resources/data/fixed_data_1.json");
         CardManager cm = connect();
-
-        byte[] secret = Util.hexStringToByteArray("55389167c900028a37a264541ae18c5733902c0b51d7665ed41afe6788fe9fba");
-        byte[] groupKey = Util.hexStringToByteArray("022b32ab827bdffa6f63ccf9f27b1d03017f4f5d909c13294e8a4c389d3f57373f");
-        byte[] hidingRandomness = Util.hexStringToByteArray("035963fbaa2b953f2aec5fee0d9c926f9d1b65d5e150445fbe21ba437c602544d7");
-        byte[] bindingRandomness = Util.hexStringToByteArray("111963fbaa2b953f2aec5fee0d9c926f9d1b65d5e150445fbe21ba437c60254111");
-        byte[] hidingCommitment = Util.hexStringToByteArray("037a4b983117b6f6a47d9960b80c261e6122a5bc33661861f59a8a5793778ad0c4");
-        byte[] bindingCommitment = Util.hexStringToByteArray("03b4c3e234502ae5c97b7d14fee0ac980023de2b2acf3d3db1d03338b9535def0e");
         byte[] message = Util.hexStringToByteArray("325CE1E250E50BEBA57D6A487973D280");
 
         // 1. setup
@@ -187,13 +181,13 @@ public class AppletTest extends BaseTest {
                 Consts.INS_SETUP,
                 0x02, // threshold
                 0x02, // parties
-                Util.concat(new byte[]{(byte) 1}, secret, recodePoint(groupKey))
+                Util.concat(new byte[]{(byte) 1}, dataFile.secret(), recodePoint(dataFile.groupKey()))
         );
         ResponseAPDU response = cm.transmit(cmd);
         Assertions.assertEquals(response.getSW(), 0x9000);
         // 2. generate nonces
         byte[] cardData;
-        response = cm.transmit(new CommandAPDU(0, 2, 64, 0, Util.concat(hidingRandomness, bindingRandomness)));
+        response = cm.transmit(new CommandAPDU(0, 2, 64, 0, Util.concat(dataFile.hidingRandomness(), dataFile.bindingRandomness())));
         Assertions.assertEquals(response.getSW(), 0x9000);
         cardData = response.getData();
         // 3. set commitments
@@ -205,7 +199,7 @@ public class AppletTest extends BaseTest {
         Assertions.assertEquals(response.getSW(), 0x9000);
         // second card
         response = cm.transmit(new CommandAPDU(0, 3, 2 /* CARD index */, 0,
-                Util.concat(recodePoint(hidingCommitment), recodePoint(bindingCommitment))));
+                Util.concat(recodePoint(dataFile.hidingCommitment()), recodePoint(dataFile.bindingCommitment()))));
         Assertions.assertEquals(response.getSW(), 0x9000);
         // 4. sign
         response = cm.transmit(new CommandAPDU(0, 4, 0x10, 0, message));

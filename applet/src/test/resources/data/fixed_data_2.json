@@ -1,0 +1,10 @@
+{
+  "data": {
+    "secret": "4badcd990b5dc31649f5e85a9dad8cb2afff33b739d505c2af397113afb54a97",
+    "groupKey": "022b32ab827bdffa6f63ccf9f27b1d03017f4f5d909c13294e8a4c389d3f57373f",
+    "hidingRandomness": "af4dfb19fe7be89e7bf570cd2e6d3b65ac90722f83ed1c8b1deddb073bcbd33c",
+    "bindingRandomness": "7e2f3ee5ad047b878796a5659db6b3856c9e213bc5d0f2ab996eb781e3024116",
+    "hidingCommitment": "037a4b983117b6f6a47d9960b80c261e6122a5bc33661861f59a8a5793778ad0c4",
+    "bindingCommitment": "03b4c3e234502ae5c97b7d14fee0ac980023de2b2acf3d3db1d03338b9535def0e"
+  }
+}

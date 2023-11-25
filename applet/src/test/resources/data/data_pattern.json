@@ -1,0 +1,10 @@
+{
+  "data": {
+    "secret": "",
+    "groupKey": "",
+    "hidingRandomness": "",
+    "bindingRandomness": "",
+    "hidingCommitment": "",
+    "bindingCommitment": ""
+  }
+}
