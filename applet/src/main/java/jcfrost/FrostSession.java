@@ -252,12 +252,12 @@ public class FrostSession {
     }
 
     private void computeSignatureShare(byte[] output, short outputOffset) {
-        challenge.modMult(lambda, JCFROST.curve.rBN);
-        challenge.modMult(secret, JCFROST.curve.rBN);
+        challenge.modMult1(lambda, JCFROST.curve.rBN);
+        challenge.modMult2(secret, JCFROST.curve.rBN);
         tmp.clone(bindingNonce);
-        tmp.modMult(bindingFactors[index], JCFROST.curve.rBN);
-        tmp.modAdd(hidingNonce, JCFROST.curve.rBN);
-        tmp.modAdd(challenge, JCFROST.curve.rBN);
+        tmp.modMult3(bindingFactors[index], JCFROST.curve.rBN);
+        tmp.modAdd4(hidingNonce, JCFROST.curve.rBN);
+        tmp.modAdd5(challenge, JCFROST.curve.rBN);
         tmp.copyToByteArray(output, outputOffset);
     }
 

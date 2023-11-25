@@ -172,11 +172,59 @@ public class jcmathlib {
         }
 
         /**
+         * Profiling method for: tmp.modAdd(hidingNonce, JCFROST.curve.rBN)
+         */
+        public void modAdd4(BigNat other, BigNat mod) {
+            resize((short) (mod.length() + 1));
+            add(other);
+            if (!isLesser_fromModAdd4(mod)) {
+                subtract(mod);
+            }
+            setSize(mod.length());
+        }
+
+        /**
+         * Profiling method for: tmp.modAdd(challenge, JCFROST.curve.rBN)
+         */
+        public void modAdd5(BigNat other, BigNat mod) {
+            resize((short) (mod.length() + 1));
+            add(other);
+            if (!isLesser_fromModAdd5(mod)) {
+                subtract(mod);
+            }
+            setSize(mod.length());
+        }
+
+        /**
          * Modular subtraction of a BigNat from this.
          */
         public void modSub(BigNat other, BigNat mod) {
             resize((short) (mod.length() + 1));
             if (isLesser(other)) {
+                add(mod);
+            }
+            subtract(other);
+            setSize(mod.length());
+        }
+
+        /**
+         * Profiling method for: modMult#tmp.modSub(other, mod)
+         */
+        public void modSub1(BigNat other, BigNat mod) {
+            resize((short) (mod.length() + 1));
+            if (isLesser_fromModSub1(other)) {
+                add(mod);
+            }
+            subtract(other);
+            setSize(mod.length());
+        }
+
+        /**
+         * Profiling method for: modMult#result.modSub(tmp, mod)
+         */
+        public void modSub2(BigNat other, BigNat mod) {
+            resize((short) (mod.length() + 1));
+            if (isLesser_fromModSub2(other)) {
                 add(mod);
             }
             subtract(other);
@@ -356,6 +404,138 @@ public class jcmathlib {
                 tmp.modSq(mod);
 
                 result.modSub(tmp, mod);
+            }
+            setSize(mod.length());
+            copy(result);
+        }
+
+        /**
+         * Profiling method for: challenge.modMult(lambda, JCFROST.curve.rBN)
+         */
+        public void modMult1(BigNat other, BigNat mod) {
+            BigNat tmp = rm.BN_D;
+            BigNat result = rm.BN_E;
+
+            if (OperationSupport.getInstance().RSA_CHECK_ONE && isOne()) {
+                copy(other);
+                return;
+            }
+
+            if (!OperationSupport.getInstance().RSA_SQ || OperationSupport.getInstance().RSA_EXTRA_MOD) {
+                result.clone(this);
+                result.mult(other);
+                result.mod(mod);
+            } else {
+                result.setSize((short) (mod.length() + 1));
+                result.copy(this);
+                result.add(other);
+
+                short carry = (byte) 0;
+                if (result.isOdd()) {
+                    if (result.isLesser(mod)) {
+                        carry = result.add(mod);
+                    } else {
+                        result.subtract(mod);
+                    }
+                }
+                result.shiftRight((short) 1, carry);
+                result.resize(mod.length());
+
+                tmp.clone(result);
+                tmp.modSub1(other, mod);
+
+                result.modSq(mod);
+                tmp.modSq(mod);
+
+                result.modSub2(tmp, mod);
+            }
+            setSize(mod.length());
+            copy(result);
+        }
+
+        /**
+         * Profiling method for: challenge.modMult(secret, JCFROST.curve.rBN)
+         */
+        public void modMult2(BigNat other, BigNat mod) {
+            BigNat tmp = rm.BN_D;
+            BigNat result = rm.BN_E;
+
+            if (OperationSupport.getInstance().RSA_CHECK_ONE && isOne()) {
+                copy(other);
+                return;
+            }
+
+            if (!OperationSupport.getInstance().RSA_SQ || OperationSupport.getInstance().RSA_EXTRA_MOD) {
+                result.clone(this);
+                result.mult(other);
+                result.mod(mod);
+            } else {
+                result.setSize((short) (mod.length() + 1));
+                result.copy(this);
+                result.add(other);
+
+                short carry = (byte) 0;
+                if (result.isOdd()) {
+                    if (result.isLesser(mod)) {
+                        carry = result.add(mod);
+                    } else {
+                        result.subtract(mod);
+                    }
+                }
+                result.shiftRight((short) 1, carry);
+                result.resize(mod.length());
+
+                tmp.clone(result);
+                tmp.modSub1(other, mod);
+
+                result.modSq(mod);
+                tmp.modSq(mod);
+
+                result.modSub2(tmp, mod);
+            }
+            setSize(mod.length());
+            copy(result);
+        }
+
+        /**
+         * Profiling method for: tmp.modMult(bindingFactors[index], JCFROST.curve.rBN)
+         */
+        public void modMult3(BigNat other, BigNat mod) {
+            BigNat tmp = rm.BN_D;
+            BigNat result = rm.BN_E;
+
+            if (OperationSupport.getInstance().RSA_CHECK_ONE && isOne()) {
+                copy(other);
+                return;
+            }
+
+            if (!OperationSupport.getInstance().RSA_SQ || OperationSupport.getInstance().RSA_EXTRA_MOD) {
+                result.clone(this);
+                result.mult(other);
+                result.mod(mod);
+            } else {
+                result.setSize((short) (mod.length() + 1));
+                result.copy(this);
+                result.add(other);
+
+                short carry = (byte) 0;
+                if (result.isOdd()) {
+                    if (result.isLesser(mod)) {
+                        carry = result.add(mod);
+                    } else {
+                        result.subtract(mod);
+                    }
+                }
+                result.shiftRight((short) 1, carry);
+                result.resize(mod.length());
+
+                tmp.clone(result);
+                tmp.modSub1(other, mod);
+
+                result.modSq(mod);
+                tmp.modSq(mod);
+
+                result.modSub2(tmp, mod);
             }
             setSize(mod.length());
             copy(result);
@@ -704,6 +884,33 @@ public class jcmathlib {
          * Returns true if this BigNat is lesser than the other.
          */
         public boolean isLesser(BigNatInternal other) {
+            return isLesser(other, (short) 0, (short) 0);
+        }
+
+        /**
+         * Profiling method
+         */
+        public boolean isLesser_fromModAdd4(BigNatInternal other) {
+            return isLesser(other, (short) 0, (short) 0);
+        }
+
+        /**
+         * Profiling method
+         */
+        public boolean isLesser_fromModAdd5(BigNatInternal other) {
+            return isLesser(other, (short) 0, (short) 0);
+        }
+
+        /**
+         * Profiling method
+         */
+        public boolean isLesser_fromModSub1(BigNatInternal other) {
+            return isLesser(other, (short) 0, (short) 0);
+        }
+        /**
+         * Profiling method
+         */
+        public boolean isLesser_fromModSub2(BigNatInternal other) {
             return isLesser(other, (short) 0, (short) 0);
         }
 
