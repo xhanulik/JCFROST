@@ -106,38 +106,7 @@ public class jcmathlib {
          * Computes this * other and stores the result into this.
          */
         public void mult(BigNat other) {
-            if (OperationSupport.getInstance().RSA_CHECK_ONE && isOne()) {
-                clone(other);
-                return;
-            }
-            if (!OperationSupport.getInstance().RSA_SQ || length() <= (short) 16) {
-                super.mult(other);
-                return;
-            }
-
-            BigNat result = rm.BN_F;
-            BigNat tmp = rm.BN_G;
-
-            result.setSize((short) ((length() > other.length() ? length() : other.length()) + 1));
-            result.copy(this);
-            result.add(other);
-            result.sq();
-
-            if (isLesser(other)) {
-                tmp.clone(other);
-                tmp.subtract(this);
-            } else {
-                tmp.clone(this);
-                tmp.subtract(other);
-            }
-            tmp.sq();
-
-            result.subtract(tmp);
-            result.shiftRight((short) 2);
-
-            setSizeToMax(false);
-            copy(result);
-            shrink();
+            super.mult(other);
         }
 
         /**
@@ -177,9 +146,7 @@ public class jcmathlib {
         public void modAdd4(BigNat other, BigNat mod) {
             resize((short) (mod.length() + 1));
             add(other);
-            if (!isLesser_fromModAdd4(mod)) {
-                subtract(mod);
-            }
+            mod(mod);
             setSize(mod.length());
         }
 
@@ -189,9 +156,7 @@ public class jcmathlib {
         public void modAdd5(BigNat other, BigNat mod) {
             resize((short) (mod.length() + 1));
             add(other);
-            if (!isLesser_fromModAdd5(mod)) {
-                subtract(mod);
-            }
+            mod(mod);
             setSize(mod.length());
         }
 
@@ -413,42 +378,12 @@ public class jcmathlib {
          * Profiling method for: challenge.modMult(lambda, JCFROST.curve.rBN)
          */
         public void modMult1(BigNat other, BigNat mod) {
-            BigNat tmp = rm.BN_D;
             BigNat result = rm.BN_E;
 
-            if (OperationSupport.getInstance().RSA_CHECK_ONE && isOne()) {
-                copy(other);
-                return;
-            }
+            result.clone(this);
+            result.mult(other);
+            result.mod(mod);
 
-            if (!OperationSupport.getInstance().RSA_SQ || OperationSupport.getInstance().RSA_EXTRA_MOD) {
-                result.clone(this);
-                result.mult(other);
-                result.mod(mod);
-            } else {
-                result.setSize((short) (mod.length() + 1));
-                result.copy(this);
-                result.add(other);
-
-                short carry = (byte) 0;
-                if (result.isOdd()) {
-                    if (result.isLesser(mod)) {
-                        carry = result.add(mod);
-                    } else {
-                        result.subtract(mod);
-                    }
-                }
-                result.shiftRight((short) 1, carry);
-                result.resize(mod.length());
-
-                tmp.clone(result);
-                tmp.modSub1(other, mod);
-
-                result.modSq(mod);
-                tmp.modSq(mod);
-
-                result.modSub2(tmp, mod);
-            }
             setSize(mod.length());
             copy(result);
         }
@@ -457,42 +392,12 @@ public class jcmathlib {
          * Profiling method for: challenge.modMult(secret, JCFROST.curve.rBN)
          */
         public void modMult2(BigNat other, BigNat mod) {
-            BigNat tmp = rm.BN_D;
             BigNat result = rm.BN_E;
 
-            if (OperationSupport.getInstance().RSA_CHECK_ONE && isOne()) {
-                copy(other);
-                return;
-            }
+            result.clone(this);
+            result.mult(other);
+            result.mod(mod);
 
-            if (!OperationSupport.getInstance().RSA_SQ || OperationSupport.getInstance().RSA_EXTRA_MOD) {
-                result.clone(this);
-                result.mult(other);
-                result.mod(mod);
-            } else {
-                result.setSize((short) (mod.length() + 1));
-                result.copy(this);
-                result.add(other);
-
-                short carry = (byte) 0;
-                if (result.isOdd()) {
-                    if (result.isLesser(mod)) {
-                        carry = result.add(mod);
-                    } else {
-                        result.subtract(mod);
-                    }
-                }
-                result.shiftRight((short) 1, carry);
-                result.resize(mod.length());
-
-                tmp.clone(result);
-                tmp.modSub1(other, mod);
-
-                result.modSq(mod);
-                tmp.modSq(mod);
-
-                result.modSub2(tmp, mod);
-            }
             setSize(mod.length());
             copy(result);
         }
@@ -501,42 +406,12 @@ public class jcmathlib {
          * Profiling method for: tmp.modMult(bindingFactors[index], JCFROST.curve.rBN)
          */
         public void modMult3(BigNat other, BigNat mod) {
-            BigNat tmp = rm.BN_D;
             BigNat result = rm.BN_E;
 
-            if (OperationSupport.getInstance().RSA_CHECK_ONE && isOne()) {
-                copy(other);
-                return;
-            }
+            result.clone(this);
+            result.mult(other);
+            result.mod(mod);
 
-            if (!OperationSupport.getInstance().RSA_SQ || OperationSupport.getInstance().RSA_EXTRA_MOD) {
-                result.clone(this);
-                result.mult(other);
-                result.mod(mod);
-            } else {
-                result.setSize((short) (mod.length() + 1));
-                result.copy(this);
-                result.add(other);
-
-                short carry = (byte) 0;
-                if (result.isOdd()) {
-                    if (result.isLesser(mod)) {
-                        carry = result.add(mod);
-                    } else {
-                        result.subtract(mod);
-                    }
-                }
-                result.shiftRight((short) 1, carry);
-                result.resize(mod.length());
-
-                tmp.clone(result);
-                tmp.modSub1(other, mod);
-
-                result.modSq(mod);
-                tmp.modSq(mod);
-
-                result.modSub2(tmp, mod);
-            }
             setSize(mod.length());
             copy(result);
         }
