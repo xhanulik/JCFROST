@@ -151,7 +151,7 @@ public class AppletTest extends BaseTest {
     public void sign() throws Exception {
         DataFile dataFile = new DataFile("src/test/resources/data/fixed_data_1.json");
         CardManager cm = connect();
-        byte[] message = Util.hexStringToByteArray("325CE1E250E50BEBA57D6A487973D280");
+        byte[] message = Util.hexStringToByteArray("A14B0F3B0122E2687C50D0D436277F1B");
 
         // 1. setup
         final CommandAPDU cmd = new CommandAPDU(

@@ -379,7 +379,8 @@ public class jcmathlib {
         /**
          * Modular subtraction of a BigNat from this.
          */
-        public void modSub(BigNat other, BigNat mod) {
+        public void modSub(BigNat other,
+                           BigNat mod) {
             resize((short) (mod.length() + 1));
             if (isLesser(other)) {
                 add(mod);
@@ -528,42 +529,24 @@ public class jcmathlib {
         public void modMult(BigNat other, BigNat mod) {
             BigNat tmp = rm.BN_D;
             BigNat result = rm.BN_E;
-
-            if (OperationSupport.getInstance().RSA_CHECK_ONE && isOne()) {
-                copy(other);
-                return;
-            }
-
-            if (!OperationSupport.getInstance().RSA_SQ || OperationSupport.getInstance().RSA_EXTRA_MOD) {
-                result.clone(this);
-                result.mult(other);
-                result.mod(mod);
-            } else {
-                result.setSize((short) (mod.length() + 1));
-                result.copy(this);
-                result.add(other);
-
-                short carry = (byte) 0;
-                if (result.isOdd()) {
-                    if (result.isLesser(mod)) {
-                        carry = result.add(mod);
-                    } else {
-                        result.subtract(mod);
-                    }
+            result.setSize((short) (mod.length() + 1));
+            result.copy(this);
+            result.add(other);
+            short carry = (byte) 0;
+            if (result.isOdd()) {
+                if (result.isLesser(mod)) {
+                    carry = result.add(mod);
+                } else {
+                    result.subtract(mod);
                 }
-                result.shiftRight((short) 1, carry);
-                result.resize(mod.length());
-
-                tmp.clone(result);
-                tmp.modSub(other, mod);
-
-                result.modSq(mod);
-                tmp.modSq(mod);
-
-                result.modSub(tmp, mod);
             }
-            setSize(mod.length());
-            copy(result);
+            result.shiftRight((short) 1, carry);
+            result.resize(mod.length());
+            tmp.clone(result);
+            tmp.modSub(other, mod);
+            result.modSq(mod);
+            tmp.modSq(mod);
+            result.modSub(tmp, mod);
         }
 
         /**

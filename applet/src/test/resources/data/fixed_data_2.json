@@ -1,10 +1,10 @@
 {
   "data": {
-    "secret": "4badcd990b5dc31649f5e85a9dad8cb2afff33b739d505c2af397113afb54a97",
-    "groupKey": "022b32ab827bdffa6f63ccf9f27b1d03017f4f5d909c13294e8a4c389d3f57373f",
-    "hidingRandomness": "af4dfb19fe7be89e7bf570cd2e6d3b65ac90722f83ed1c8b1deddb073bcbd33c",
-    "bindingRandomness": "7e2f3ee5ad047b878796a5659db6b3856c9e213bc5d0f2ab996eb781e3024116",
-    "hidingCommitment": "037a4b983117b6f6a47d9960b80c261e6122a5bc33661861f59a8a5793778ad0c4",
-    "bindingCommitment": "03b4c3e234502ae5c97b7d14fee0ac980023de2b2acf3d3db1d03338b9535def0e"
+    "secret": "37c8622586a9d4de7069de860a854cefdfc114a4318cf9936f4c4f234d936488",
+    "groupKey": "02b2b2e984d05e94bf870a637ac81c64550ab161517ad4cd7f386f43e10fe7af86",
+    "hidingRandomness": "d6574d199110f46bdaaf071d1ed1c6a43abd70d651154ba10a852e447f5c726c",
+    "bindingRandomness": "8716a5fcffc4bafcd32e0882088b25a82885873f60ad377309242d6b3bf7136d",
+    "hidingCommitment": "02bb0adce2eeadf6eaede0f2ad603bf6500b94ece80d6529457593675574e3a6f0",
+    "bindingCommitment": "0223675ee4b8b7d6eefebc0f5fc0f21a80279981371718cc3524ec1f370860013e"
   }
 }
