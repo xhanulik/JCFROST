@@ -31,6 +31,7 @@ public class FrostSession {
     private BigNat challenge = new BigNat((short) 32, JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT, JCFROST.rm);
     private BigNat lambda = new BigNat((short) 32, JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT, JCFROST.rm);
     private BigNat tmp = new BigNat((short) 32, JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT, JCFROST.rm);
+    private BigNat tmpSecret = new BigNat((short) 32, JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT, JCFROST.rm);
     private ECPoint groupCommitment = new ECPoint(JCFROST.curve);
     private ECPoint tmpPoint = new ECPoint(JCFROST.curve);
     private ECPoint tmpPoint2 = new ECPoint(JCFROST.curve);
@@ -102,7 +103,7 @@ public class FrostSession {
             computeLambda();
         }
         computeChallenge(msg, msgOffset, msgLength);
-        computeSignatureShare(output, outputOffset);
+        computeSignatureShare_alternative(output, outputOffset);
     }
 
     public void reset() {
@@ -258,6 +259,17 @@ public class FrostSession {
         tmp.modMult(bindingFactors[index], JCFROST.curve.rBN);
         tmp.modAdd(hidingNonce, JCFROST.curve.rBN);
         tmp.modAdd(challenge, JCFROST.curve.rBN);
+        tmp.copyToByteArray(output, outputOffset);
+    }
+
+    private void computeSignatureShare_alternative(byte[] output, short outputOffset) {
+        tmpSecret.clone(secret);
+        tmpSecret.modMult(challenge, JCFROST.curve.rBN);
+        tmpSecret.modMult(lambda, JCFROST.curve.rBN);
+        tmp.clone(bindingNonce);
+        tmp.modMult(bindingFactors[index], JCFROST.curve.rBN);
+        tmp.modAdd(hidingNonce, JCFROST.curve.rBN);
+        tmp.modAdd(tmpSecret, JCFROST.curve.rBN);
         tmp.copyToByteArray(output, outputOffset);
     }
 }
