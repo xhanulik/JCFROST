@@ -5,7 +5,7 @@ import javacard.security.*;
 import jcfrost.jcmathlib.*;
 
 public class JCFROST extends Applet {
-    public final static short CARD_TYPE = OperationSupport.SIMULATOR;
+    public final static short CARD_TYPE = OperationSupport.JCOP4_P71;
     public final static boolean DEBUG = true;
     public final static short POINT_SIZE = 65;
     public final static byte[] DEBUG_RANDOMNESS = new byte[64];
@@ -61,6 +61,9 @@ public class JCFROST extends Applet {
                     commitment(apdu);
                     break;
                 case Consts.INS_SIGN:
+                    prepareSign(apdu);
+                    break;
+                case 0x0A:
                     sign(apdu);
                     break;
                 case Consts.INS_RESET:
@@ -161,9 +164,15 @@ public class JCFROST extends Applet {
         frost.commitment(apdu.getBuffer()[ISO7816.OFFSET_P1], apdu.getBuffer(), ISO7816.OFFSET_CDATA);
     }
 
+    private void prepareSign(APDU apdu) {
+        byte[] apduBuffer = apdu.getBuffer();
+        frost.prepareSign(apduBuffer, ISO7816.OFFSET_CDATA, apduBuffer[ISO7816.OFFSET_P1]);
+        apdu.setOutgoingAndSend((short) 0, (short) 32);
+    }
+
     private void sign(APDU apdu) {
         byte[] apduBuffer = apdu.getBuffer();
-        frost.sign(apduBuffer, ISO7816.OFFSET_CDATA, apduBuffer[ISO7816.OFFSET_P1], apduBuffer, (short) 0);
+        frost.sign(apduBuffer, (short) 0);
         apdu.setOutgoingAndSend((short) 0, (short) 32);
     }
 
