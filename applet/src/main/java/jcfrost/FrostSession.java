@@ -85,7 +85,7 @@ public class FrostSession {
         ++storedCommitments;
     }
 
-    public void sign(byte[] msg, short msgOffset, short msgLength, byte[] output, short outputOffset) {
+    public void prepareSign(byte[] msg, short msgOffset, short msgLength) {
         if(storedCommitments < JCFROST.minParties) {
             reset();
             ISOException.throwIt(Consts.E_NOT_ENOUGH_COMMITMENTS);
@@ -102,6 +102,9 @@ public class FrostSession {
             computeLambda();
         }
         computeChallenge(msg, msgOffset, msgLength);
+    }
+
+    public void sign(byte[] output, short outputOffset) {
         computeSignatureShare(output, outputOffset);
     }
 

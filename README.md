@@ -2,6 +2,8 @@
 
 JCFROST is a JavaCard implementation of FROST threshold signature scheme using public JavaCard API complying with the [IRTF standardization draft](https://datatracker.ietf.org/doc/draft-irtf-cfrg-frost/).
 
+Modifications have been made by Veronika Hanulíková, as part of a master's thesis on Masaryk University in 2025.
+
 ## Getting Started
 
 This implementation is intended mainly for demonstration and is not intended for production use as a standalone applet. It includes only the code to execute the protocol and produce a signature share.
@@ -38,14 +40,15 @@ For the version and configuration of the applet that was used for measurement an
 
 The applet responds to the following APDUs.
 
-| Name         | CLA   | INS   | P1           | P2         | Data                                                           |
-| :---         | :---: | :---: | :---:        | :---:      | :---                                                           |
-| `INITIALIZE` | 0x00  | 0x00  | 0x00         | 0x00       | ---                                                            |
-| `SETUP`      | 0x00  | 0x01  | t            | n          | card index + secret key share + group public key               |
-| `COMMIT`     | 0x00  | 0x02  | data length  | 0x00       | --- or randomness used to fix nonce generation (in debug mode) |
-| `COMMITMENT` | 0x00  | 0x03  | `idx`        | 0x00       | hiding commitment + binding commitment of party `idx`          |
-| `SIGN`       | 0x00  | 0x04  | msg length   | 0x00       | message                                                        |
-| `RESET`      | 0x00  | 0x05  | 0x00         | 0x00       | ---                                                            |
-| `GROUP_KEY`  | 0x00  | 0x06  | 0x00         | 0x00       | ---                                                            |
+| Name         | CLA   | INS  | P1           | P2         | Data                                                           |
+|:-------------| :---: |:----:| :---:        | :---:      | :---                                                           |
+| `INITIALIZE` | 0x00  | 0x00 | 0x00         | 0x00       | ---                                                            |
+| `SETUP`      | 0x00  | 0x01 | t            | n          | card index + secret key share + group public key               |
+| `COMMIT`     | 0x00  | 0x02 | data length  | 0x00       | --- or randomness used to fix nonce generation (in debug mode) |
+| `COMMITMENT` | 0x00  | 0x03 | `idx`        | 0x00       | hiding commitment + binding commitment of party `idx`          |
+| `PRE-SIGN`   | 0x00  | 0x04 | msg length   | 0x00       | message                                                        |
+| `SIGN`       | 0x00  | 0x07 | msg length   | 0x00       | message                                                        |
+| `RESET`      | 0x00  | 0x05 | 0x00         | 0x00       | ---                                                            |
+| `GROUP_KEY`  | 0x00  | 0x06 | 0x00         | 0x00       | ---                                                            |
 
 The applet expects that commitments supplied by the `COMMITMENT` instruction are ordered by party `idx`, including the card's commitments.
