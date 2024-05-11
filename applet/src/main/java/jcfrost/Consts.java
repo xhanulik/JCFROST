@@ -6,10 +6,12 @@ public class Consts {
     public static final byte INS_SETUP = (byte) 0x01;
     public static final byte INS_COMMIT = (byte) 0x02;
     public static final byte INS_COMMITMENT = (byte) 0x03;
-    public static final byte INS_SIGN = (byte) 0x04;
+    public static final byte INS_PRE_SIGN = (byte) 0x04;
 
     public static final byte INS_RESET = (byte) 0x05;
     public static final byte INS_GROUP_KEY = (byte) 0x06;
+
+    public static final byte INS_SIGN = (byte) 0x06;
 
     public final static short E_ALREADY_INITIALIZED = (short) 0xee00;
     public final static short E_UNINITIALIZED = (short) 0xee01;
