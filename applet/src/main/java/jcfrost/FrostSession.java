@@ -161,16 +161,16 @@ public class FrostSession {
         if(maxParties > 12) {
             ISOException.throwIt(Consts.E_TOO_MANY_PARTIES);
         }
-        int numeratorAcc;
-        int denominatorAcc;
+        short numeratorAcc;
+        short denominatorAcc;
         short j;
         if(index != (short) 0) {
             numeratorAcc = commitments[0].identifier;
-            denominatorAcc = commitments[0].identifier - commitments[index].identifier;
+            denominatorAcc = (short) (commitments[0].identifier - commitments[index].identifier);
             j = 1;
         } else {
             numeratorAcc = commitments[1].identifier;
-            denominatorAcc = commitments[1].identifier - commitments[index].identifier;
+            denominatorAcc = (short) (commitments[1].identifier - commitments[index].identifier);
             j = 2;
         }
 
