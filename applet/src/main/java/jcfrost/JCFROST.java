@@ -63,7 +63,7 @@ public class JCFROST extends Applet {
                 case Consts.INS_SIGN:
                     prepareSign(apdu);
                     break;
-                case 0x0A:
+                case 0x07:
                     sign(apdu);
                     break;
                 case Consts.INS_RESET:
