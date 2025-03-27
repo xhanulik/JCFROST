@@ -5,6 +5,7 @@ import javacard.framework.JCSystem;
 import javacard.framework.Util;
 import javacard.security.*;
 import javacardx.crypto.Cipher;
+import java.math.BigInteger;
 
 /**
  * Packaged JCMathLib v2.0 (https://github.com/OpenCryptoProject/JCMathLib).
@@ -314,7 +315,12 @@ public class jcmathlib {
             tmp.decrement();
             tmp.decrement();
 
-            modExp(tmp, mod);
+            //modExp(tmp, mod);
+            BigInteger base = new BigInteger(this.value);
+            BigInteger exponent = new BigInteger(tmp.value);
+            BigInteger modulus = new BigInteger(mod.value);
+            BigInteger result = base.modPow(exponent, modulus);
+            this.fromByteArray(result.toByteArray(), (short) 0, (short) result.toByteArray().length);
         }
 
         /**
@@ -365,15 +371,10 @@ public class jcmathlib {
          * Computes modulo square of this BigNat.
          */
         public void modSq(BigNat mod) {
-            if (OperationSupport.getInstance().RSA_SQ) {
-                if (rm.fixedMod != null && rm.fixedMod == mod) {
-                    modSqFixed();
-                } else {
-                    modExp(ResourceManager.TWO, mod);
-                }
-            } else {
-                modMult(this, mod);
-            }
+            BigInteger base = new BigInteger(this.value);
+            BigInteger modulus = new BigInteger(mod.value);
+            BigInteger result = base.multiply(base).mod(modulus);
+            this.fromByteArray(result.toByteArray(), (short) 0, (short) result.toByteArray().length);
         }
 
         /**
@@ -444,7 +445,7 @@ public class jcmathlib {
         protected final ResourceManager rm;
         private static final short DIGIT_MASK = 0xff, DIGIT_LEN = 8, DOUBLE_DIGIT_LEN = 16, POSITIVE_DOUBLE_DIGIT_MASK = 0x7fff;
 
-        private byte[] value;
+        public byte[] value;
         private short size; // The current size of internal representation in bytes.
         private short offset;
 
@@ -2264,7 +2265,7 @@ public class jcmathlib {
                     sqPriv = (RSAPrivateKey) KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PRIVATE, MAX_SQ_BIT_LENGTH, false);
                     sqPriv.setExponent(CONST_TWO, (short) 0, (short) CONST_TWO.length);
                     sqPriv.setModulus(ARRAY_A, (short) 0, MAX_SQ_LENGTH);
-                    sqCiph.init(sqPriv, Cipher.MODE_DECRYPT);
+                    //sqCiph.init(sqPriv, Cipher.MODE_DECRYPT);
                 }
             }
 
@@ -2324,7 +2325,7 @@ public class jcmathlib {
                     short modLength = mod.copyToByteArray(tmpBuffer, (short) 0);
                     modSqPriv.setModulus(tmpBuffer, (short) 0, modLength);
                 }
-                modSqCiph.init(modSqPriv, Cipher.MODE_DECRYPT);
+                //modSqCiph.init(modSqPriv, Cipher.MODE_DECRYPT);
             }
         }
 
