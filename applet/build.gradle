@@ -42,6 +42,7 @@ repositories {
 // Dependencies for your project
 dependencies {
     jcardsim 'com.klinec:jcardsim:3.0.6.0'
+    implementation files('../libs/kelinci.jar') // relative path for instrumentor
 
     implementation 'com.klinec:jcardsim:3.0.6.0'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.58'

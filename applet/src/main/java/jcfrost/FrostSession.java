@@ -1,5 +1,7 @@
 package jcfrost;
 
+import edu.cmu.sv.kelinci.Kelinci;
+import edu.cmu.sv.kelinci.Mem;
 import javacard.framework.ISOException;
 import javacard.framework.JCSystem;
 import javacard.framework.Util;
@@ -36,6 +38,8 @@ public class FrostSession {
     private ECPoint tmpPoint2 = new ECPoint(JCFROST.curve);
     private byte[] rhoBuffer = JCSystem.makeTransientByteArray((short) (33 + 3 * 32), JCSystem.CLEAR_ON_RESET);
     private BigNat[] bindingFactors = new BigNat[Consts.MAX_PARTIES];
+
+    private byte[] msgBuffer = JCSystem.makeTransientByteArray((short) (32), JCSystem.CLEAR_ON_RESET);
 
     public FrostSession() {
         for(short i = 0; i < (short) Consts.MAX_PARTIES; ++i) {
@@ -94,15 +98,33 @@ public class FrostSession {
             reset();
             ISOException.throwIt(Consts.E_IDENTIFIER_NOT_INCLUDED);
         }
-        computeBindingFactors(msg, msgOffset, msgLength);
+
+        /* Adjusted processing of two messages */
+        /* Split message into halves */
+        short newMsgLength = (short) (msgLength / 2);
+        Util.arrayCopyNonAtomic(msg, (short) (msgOffset + newMsgLength), msgBuffer, (short) 0, newMsgLength);
+
+        /* Compute first message */
+        computeBindingFactors(msg, msgOffset, newMsgLength);
         computeGroupCommitment();
-        if(maxParties <= 12) {
-            computeLambdaOptimized();
-        } else {
-            computeLambda();
-        }
-        computeChallenge(msg, msgOffset, msgLength);
+        computeLambdaOptimized();
+        computeChallenge(msg, msgOffset, newMsgLength);
+        Mem.clear();
         computeSignatureShare(output, outputOffset);
+        long cost1 = Mem.instrCost;
+        System.out.println("cost1=" + cost1);
+
+        /* Compute second message */
+        computeBindingFactors(msgBuffer, (short) 0, newMsgLength);
+        computeGroupCommitment();
+        computeLambdaOptimized();
+        computeChallenge(msgBuffer, (short) 0, newMsgLength);
+        Mem.clear();
+        computeSignatureShare(output, outputOffset);
+        long cost2 = Mem.instrCost;
+        System.out.println("cost2=" + cost2);
+        System.out.println("|cost1 - cost2|= " + Math.abs(cost1 - cost2));
+        Kelinci.addCost(Math.abs(cost1 - cost2));
     }
 
     public void reset() {
